@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Badge, Container, Alert, Spinner } from 'react-bootstrap';
 import { ticketService } from '../services/api';
 
-const TicketList = ({ onEdit, onRefresh }) => {
+const TicketList = ({ onEdit, onRefresh, onViewDetails }) => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,7 +18,7 @@ const TicketList = ({ onEdit, onRefresh }) => {
             setTickets(response.data);
             setError(null);
         } catch (err) {
-            setError('Failed to fetch tickets. Make sure the backend is running.');
+            setError('Failed to fetch tickets. Make sure the backend is running and you are logged in.');
             console.error('Error fetching tickets:', err);
         } finally {
             setLoading(false);
@@ -95,6 +95,8 @@ const TicketList = ({ onEdit, onRefresh }) => {
                             <th>Description</th>
                             <th>Status</th>
                             <th>Priority</th>
+                            <th>Created By</th>
+                            <th>Assigned To</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
@@ -107,8 +109,18 @@ const TicketList = ({ onEdit, onRefresh }) => {
                                 <td>{ticket.description?.substring(0, 50)}{ticket.description?.length > 50 ? '...' : ''}</td>
                                 <td>{getStatusBadge(ticket.status)}</td>
                                 <td>{getPriorityBadge(ticket.priority)}</td>
+                                <td>{ticket.createdBy?.fullName || ticket.createdBy?.username || '-'}</td>
+                                <td>{ticket.assignedTo?.fullName || ticket.assignedTo?.username || 'Unassigned'}</td>
                                 <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
                                 <td>
+                                    <Button 
+                                        variant="outline-info" 
+                                        size="sm" 
+                                        className="me-2"
+                                        onClick={() => onViewDetails(ticket)}
+                                    >
+                                        View
+                                    </Button>
                                     <Button 
                                         variant="outline-primary" 
                                         size="sm" 
